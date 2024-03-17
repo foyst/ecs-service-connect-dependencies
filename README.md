@@ -1,15 +1,22 @@
-# Welcome to your CDK TypeScript project
+# ECS Service Connect Dependency Example
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`EcsServiceConnectDependenciesStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+This codebase demonstrates dependency race conditions that can be encountered with AWS ECS Service Connect, depending on how you provision and configuire your services.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+https://ben-foster.dev/2024/03/managing-dependencies-between-apps-when-using-aws-ecs-service-connect/
 
-## Useful commands
+To run:
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+```bash
+npm install
+cdk deploy --all
+```
+
+Then, find the EC2 service deployed within the AWS console and connect to its public IP address over http.
+
+You should see the WordPress installation begin, with a selection of languages.
+
+To reproduce the issue described in my blog:
+
+1. Comment out the `wordpressService.node.addDependency(mySqlService);` line in `lib/services-stack.ts`,
+2. Run a `cdk destroy ServicesStack`, followed by another `cdk deploy -all` command
+3. Connect to the EC2 instance again and you should see the WordPress installation fail with a database connection error.
